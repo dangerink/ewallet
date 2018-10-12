@@ -26,7 +26,7 @@ class TestWallet(unittest.TestCase):
 
     def test_successful_transfer(self):
         amount = 20
-        self.w1.transfer(self.w2, 20)
+        self.w1.transfer(self.w2, amount)
         self.assertEqual(self.w2.balance, amount)
         self.assertEqual(self.w1.balance, self.DEFAULT_AMOUNT - amount)
 
