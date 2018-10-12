@@ -6,7 +6,31 @@ class AccountLimitException(Exception):
     """ Account limit is reached. """
 
 
-class Wallet(object):
+class ModelMeta(type):
+    """ Provides simple object manager and set object PK counter to class. """
+
+    def __init__(cls, *args, **kwargs):
+        super(ModelMeta, cls).__init__(*args, **kwargs)
+        cls.objects = {}
+        cls._pk_counter = 0
+
+
+class Model(object):
+    """ Base model. Sets primary key, increase it and add new instance to object manager. """
+
+    __metaclass__ = ModelMeta
+
+    PK_NAME = 'pk'
+
+    def __new__(cls, *args, **kwargs):
+        obj = super(Model, cls).__new__(cls, *args, **kwargs)
+        cls._pk_counter += 1
+        setattr(obj, cls.PK_NAME, cls._pk_counter)
+        cls.objects[cls._pk_counter] = obj
+        return obj
+
+
+class Wallet(Model):
     """ Digital wallet that allows an individual to make electronic transactions. """
 
     def __init__(self, owner, limit):
