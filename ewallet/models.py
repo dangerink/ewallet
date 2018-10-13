@@ -1,8 +1,8 @@
-class NotEnoughFundsException(Exception):
+class NotEnoughFundsError(Exception):
     """ Not enough funds in account. """
 
 
-class AccountLimitException(Exception):
+class AccountLimitError(Exception):
     """ Account limit is reached. """
 
 
@@ -41,14 +41,14 @@ class Wallet(Model):
     def put(self, amount):
         """ Put money into account. """
         if self._balance + amount > self._limit:
-            raise AccountLimitException()
+            raise AccountLimitError()
         else:
             self._balance += amount
 
     def draw(self, amount):
         """ Draw money from account. """
         if self._balance - amount < 0:
-            raise NotEnoughFundsException
+            raise NotEnoughFundsError
         else:
             self._balance -= amount
 
@@ -61,7 +61,7 @@ class Wallet(Model):
         try:
             self.draw(amount)
             other.put(amount)
-        except AccountLimitException as e:
+        except AccountLimitError as e:
             self._rollback(amount)
             raise e
 
