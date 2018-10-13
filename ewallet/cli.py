@@ -11,15 +11,22 @@ class Cli(Cmd):
         self.doc_header = 'Available commands: (type help <command>):'
 
     def do_create_wallet(self, line):
-        """create_wallet owner limit\nCreate a new account in eWallet."""
+        """create_wallet owner limit"""
         owner, limit = line.split()
         w = Wallet(owner, float(limit))
         self.write('Done')
         self.write_table(w.SHOW_PROPS, [w.prop_list])
 
     def do_show_wallets(self, line):
-        """show_accounts\nDisplay all existing eWallet accounts."""
-        if not Wallet.objects:
+        """show_accounts [wallet_id]"""
+        if line:
+            wallet_id = int(line)
+            try:
+                w = Wallet.get_obj(wallet_id)
+                self.write_table(w.SHOW_PROPS, [w.prop_list])
+            except WalletError as e:
+                self.write('Error: {0}'.format(str(e)))
+        elif not Wallet.objects:
             self.columnize([])
         else:
             self.write_table(

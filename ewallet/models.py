@@ -48,10 +48,10 @@ class Model(object):
 
     @classmethod
     def get_obj(cls, obj_pk):
-        w = cls.objects.get(obj_pk)
-        if w is None:
+        obj = cls.objects.get(obj_pk)
+        if obj is None:
             raise WalletNotFoundError
-        return w
+        return obj
 
 
 class Wallet(Model):
