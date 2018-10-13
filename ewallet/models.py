@@ -24,9 +24,9 @@ class Model(object):
 
     def __new__(cls, *args, **kwargs):
         obj = super(Model, cls).__new__(cls, *args, **kwargs)
-        cls._pk_counter += 1
         setattr(obj, cls.PK_NAME, cls._pk_counter)
         cls.objects[cls._pk_counter] = obj
+        cls._pk_counter += 1
         return obj
 
 
@@ -72,3 +72,7 @@ class Wallet(Model):
     @property
     def owner(self):
         return self._owner
+
+    @property
+    def limit(self):
+        return self._limit
