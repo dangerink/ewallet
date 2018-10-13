@@ -1,13 +1,24 @@
-class NotEnoughFundsError(Exception):
-    """ Not enough funds in account. """
+class WalletError(Exception):
+    """Base wallet error."""
+
+    def __init__(self, *args, **kwargs):
+        super(WalletError, self).__init__(self.__doc__.lower(), *args, **kwargs)
 
 
-class AccountLimitError(Exception):
-    """ Account limit is reached. """
+class NotEnoughFundsError(WalletError):
+    """Not enough funds in account."""
+
+
+class AccountLimitError(WalletError):
+    """Account limit is reached."""
+
+
+class WalletNotFoundError(WalletError):
+    """Wallet is not found."""
 
 
 class ModelMeta(type):
-    """ Provides simple object manager and set object PK counter to class. """
+    """Provides simple object manager and set object PK counter to class."""
 
     def __init__(cls, *args, **kwargs):
         super(ModelMeta, cls).__init__(*args, **kwargs)
@@ -16,28 +27,41 @@ class ModelMeta(type):
 
 
 class Model(object):
-    """ Base model. Sets primary key, increase it and add new instance to object manager. """
+    """Base model."""
 
     __metaclass__ = ModelMeta
 
     PK_NAME = 'pk'
+    SHOW_PROPS = ()
 
     def __new__(cls, *args, **kwargs):
+        # Add a newly created object to object manager
         obj = super(Model, cls).__new__(cls, *args, **kwargs)
         setattr(obj, cls.PK_NAME, cls._pk_counter)
         cls.objects[cls._pk_counter] = obj
         cls._pk_counter += 1
         return obj
 
+    @property
+    def prop_list(self):
+        return [str(getattr(self, prop)) for prop in self.SHOW_PROPS]
+
+    @classmethod
+    def get_obj(cls, obj_pk):
+        w = cls.objects.get(obj_pk)
+        if w is None:
+            raise WalletNotFoundError
+        return w
+
 
 class Wallet(Model):
-    """ Digital wallet that allows an individual to make electronic transactions. """
-    SHOW_KEYS = ('pk', 'owner', 'balance', 'limit')
+    """Digital wallet that allows an individual to make electronic transactions."""
+    SHOW_PROPS = ('pk', 'owner', 'balance', 'limit')
 
     def __init__(self, owner, limit):
         self._owner = owner
         self._limit = limit
-        self._balance = 0
+        self._balance = 0.0
 
     def put(self, amount):
         """ Put money into account. """
