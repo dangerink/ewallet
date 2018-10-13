@@ -32,6 +32,7 @@ class Model(object):
 
 class Wallet(Model):
     """ Digital wallet that allows an individual to make electronic transactions. """
+    SHOW_KEYS = ('pk', 'owner', 'balance', 'limit')
 
     def __init__(self, owner, limit):
         self._owner = owner
