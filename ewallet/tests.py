@@ -1,6 +1,9 @@
 import unittest
+import logging
 
 from .models import Wallet, NotEnoughFundsError, AccountLimitError
+
+logging.disable(logging.CRITICAL)
 
 
 class TestWallet(unittest.TestCase):
