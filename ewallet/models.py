@@ -1,4 +1,4 @@
-from logger import logger
+from logger import logger, log_action
 
 
 class WalletError(Exception):
@@ -78,36 +78,36 @@ class Wallet(Model):
         self._balance = 0.0
         logger.info('Create new account {0} with {1} limit'.format(owner, limit))
 
+    @log_action
     def put(self, amount):
         """ Put money into account. """
         if self._balance + amount > self._limit:
             raise AccountLimitError(self.pk)
         else:
             self._balance += amount
-        logger.info('Put {0} into account {1}'.format(amount, self.pk))
 
+    @log_action
     def draw(self, amount):
         """ Draw money from account. """
         if self._balance - amount < 0:
             raise NotEnoughFundsError(self.pk)
         else:
             self._balance -= amount
-        logger.info('Draw {0} into account {1}'.format(amount, self.pk))
 
+    @log_action
     def transfer(self, other, amount):
         """ Transfer money to another account. """
         try:
             self.draw(amount)
             other.put(amount)
-            logger.info('Transfer {0} from {1} into account {2}'.format(amount, self.pk, other.pk))
         except AccountLimitError as e:
             self._rollback(amount)
             raise e
 
+    @log_action
     def _rollback(self, amount):
         """ Rollback draw in case of error. """
         self._balance += amount
-        logger.info('Rollback {0} to account {1}'.format(amount, self.pk))
 
     @property
     def balance(self):
@@ -120,3 +120,6 @@ class Wallet(Model):
     @property
     def limit(self):
         return self._limit
+
+    def __repr__(self):
+        return '{0} <{1}>'.format(self.__class__.__name__, self.pk)
